@@ -14,9 +14,9 @@ from time import time
 # - Smooth scene transitions
 ###########################################
 class Engine:
-    def __init__(self):
-        self._width = 600
-        self._height = 600
+    def __init__(self, width=600, height=600):
+        self._width = width
+        self._height = height
         
         self.window = pgl.window.Window(self._width, self._height)
         self._currentScene = None

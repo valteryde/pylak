@@ -14,7 +14,8 @@ classifiers = [
 ]
 dependencies = [
   "numpy",
-  "pyglet"
+  "pyglet",
+  "pillow"
 ]
 
 [project.urls]

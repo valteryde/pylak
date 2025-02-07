@@ -7,7 +7,7 @@ from .physics import PhysicsObject
 from .animation import Animations
 
 # Individual learning games
-from .robot import RobotArm, RobotSimulation
+from .games import MazeGame
 
 # Other
 # Gør det nemere at impotere for læring
