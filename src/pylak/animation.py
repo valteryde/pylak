@@ -27,7 +27,7 @@ class Animations:
                               flipx=False,
                               flipy=False
                               ):
-        
+
         # chop images into diffrent textures
         spriteSheet = fullSpriteSheet.crop([0, y0, fullSpriteSheet.width, y1])
         rawImage = spriteSheet.tobytes()  # tostring is deprecated
@@ -50,8 +50,12 @@ class Animations:
 
 
     def __init__(self, texturePath:str, rows:int, cols:int, period=1/15, size=100):
+        """
+        uses center pos
+        """
 
         self.size = size
+
 
         fullSpriteSheet = Image.open(texturePath)
         rowHeight = fullSpriteSheet.height / rows
@@ -109,6 +113,9 @@ class Animations:
         self._currentAnimation = [0, 'default']
         self._nextAnimationIndex = 0
         self._reachedEndOfCycle = False
+        
+        self.x = 0 # center pos
+        self.y = 0
 
 
     def switch(self, index:int, flipx:bool=False, flipy:bool=False):
@@ -139,13 +146,20 @@ class Animations:
         self.y = y
 
 
-    def draw(self):
+    def draw(self, x=None, y=None):
+
+        if x is not None:
+            self.x = x
         
+        if y is not None:
+            self.y = y
+
+
         index, state = self._currentAnimation
 
         sprite:pgl.sprite.Sprite = self.animations[state][index]
-        sprite.x = self.x + (state == "flipx") * self.size
-        sprite.y = self.y + (state == "flipy") * self.size
+        sprite.x = x + (state == "flipx") * self.size - self.size/2
+        sprite.y = y + (state == "flipy") * self.size - self.size/2
 
         # denne burde kun køre en gang per cyklus men bliver kørt flere gange 
         # hver gang der tegnes og man er på det sidste frame

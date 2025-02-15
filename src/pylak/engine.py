@@ -124,7 +124,7 @@ class Engine:
 
         # i få situationer er der ikke sat en scene
         if self._currentScene:
-            self._currentScene.update()
+            self._currentScene.update(dt)
 
     
     def __draw__(self):
