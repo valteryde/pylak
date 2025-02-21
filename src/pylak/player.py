@@ -14,7 +14,7 @@ class ControllablePlayer:
 
         self.rect = Rectangle(x, y, w, h, color=(198, 39, 114))
         self.collider = Collider(x, y, w, h, self)
-        self.physics = PhysicsObject(self, self.collider, mass)
+        self.physics = PhysicsObject(self, self.w, self.h, mass, friction=200000000000)
 
         # reference
         self.engine = engine
@@ -31,7 +31,7 @@ class ControllablePlayer:
 
     def update(self):
         
-        force = 100
+        force = 10*10**5
 
         # bevæg den
         if self.engine.isKeyPressed('w'):
@@ -45,6 +45,7 @@ class ControllablePlayer:
         
         if self.engine.isKeyPressed('d'):
             self.physics.addForce(force, 0)
+
 
         self.__update__()
 

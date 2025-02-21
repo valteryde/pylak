@@ -7,6 +7,9 @@ from typing import DefaultDict
 import numpy as np
 import math
 from time import time
+import pymunk
+import pymunk.pyglet_util
+
 
 ###########################################
 # Engine
@@ -25,7 +28,7 @@ class Engine:
 
         self._colliders = []
         self._physicsObjects = []
-        self._flags = {"debug":False}
+        self._flags = {"debug":False, "debugPhysics":False}
 
         self.last = time()
         self.frames = 0
@@ -58,6 +61,7 @@ class Engine:
 
     # add physics object
     def addPhysicsObject(self, physicsObject):
+        self._physicsSpace.add(physicsObject.body, physicsObject.poly)
         self._physicsObjects.append(physicsObject)
 
     # get collisions O(1)
@@ -70,6 +74,11 @@ class Engine:
         self._currentScene = scene
         self._colliders = []
         self._physicsObjects = []
+        
+        self._physicsSpace = pymunk.Space()
+        self.__physicsDebugOtions = pymunk.pyglet_util.DrawOptions()
+        self.__physicsDebugOtions.flags = pymunk.SpaceDebugDrawOptions.DRAW_SHAPES
+
         scene.setup()
 
 
@@ -119,17 +128,29 @@ class Engine:
         
         self.__calculateCollisions__()
 
-        for physicsObject in self._physicsObjects:
-            physicsObject.update(self, dt)
+        steps = 10
+        for _ in range(steps):
+            self._physicsSpace.step(dt/steps)
+
+        for obj in self._physicsObjects:
+            obj.update()
 
         # i få situationer er der ikke sat en scene
         if self._currentScene:
             self._currentScene.update(dt)
 
+
     
     def __draw__(self):
         self.window.clear()
         
+        # i få situationer er der ikke sat en scene
+        if self._currentScene:
+            self._currentScene.draw()
+
+        if self._flags["debugPhysics"]:
+            self._physicsSpace.debug_draw(self.__physicsDebugOtions)
+
         if self._flags["debug"]:
         
             # draw fps
@@ -139,11 +160,9 @@ class Engine:
                 self.last = time()
             else:
                 self.frames += 1
+
             self.fps_text.draw()
 
-        # i få situationer er der ikke sat en scene
-        if self._currentScene:
-            self._currentScene.draw()
 
 
     def start(self):
