@@ -80,8 +80,6 @@ class GameScene:
         for ball in self.balls:
             engine.addPhysicsObject(ball.physics)
         
-        engine.addPhysicsObject(self.player.physics)
-
 
     def update(self, dt):
         

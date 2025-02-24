@@ -63,7 +63,7 @@ class Image:
 
 
     def open(fpath):
-        pass
+        return Image(pg.image.load(fpath))
 
 
     def getSize(self):
