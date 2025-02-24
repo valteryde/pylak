@@ -15,15 +15,11 @@ class Ball:
         self.y = y
         self.size = size
 
-        self.circle = Circle(x, y, size/2) # selve tegningen af bolden (som jo er en cirkel)
+        self.circle = Circle(size/2) # selve tegningen af bolden (som jo er en cirkel)
         self.physics = PhysicsObject(self, self.size, self.size, mass=10) # physics står for at give den noget fysik så den kan berøres af de andre elementer
 
-    def update(self):
-        self.circle.x = self.x + self.size/2
-        self.circle.y = self.y + self.size/2
-
     def draw(self):
-        self.circle.draw()
+        self.circle.draw(self.x, self.y)
 
 ################################
 # Objekt påvirket af fysik
@@ -32,7 +28,7 @@ class Ball:
 class Wall:
     
     def __init__(self, x, y, w, h):
-        self.rect = Rectangle(x, y, w, h)
+        self.rect = Rectangle(w, h)
         self.width = w
         self.height = h
         self.x = x
@@ -40,7 +36,7 @@ class Wall:
         self.physics = PhysicsObject(self, self.width, self.height, immovable=True)
 
     def draw(self):
-        self.rect.draw()
+        self.rect.draw(self.x, self.y)
 
 
 ################################
@@ -87,9 +83,6 @@ class GameScene:
 
     def update(self, dt):
         
-        for ball in self.balls:
-            ball.update()
-
         self.player.update()
 
 

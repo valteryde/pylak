@@ -3,27 +3,25 @@
 
 import test
 from pylak import Engine, Animations, Rectangle
+from pylak.game import adventure
 
 engine = Engine()
 
 class Scene:
 
     def setup(self):
-        self.animations = Animations('tests/Tiny_Swords/Factions/Knights/Troops/Warrior/Purple/Warrior_Purple.png', 8, 6, size=200)
+        size = 100
+        self.animations = Animations(adventure.WARRIOR, size=size)
         
-        self.rect = Rectangle(0, 0, 200, 200)
+        self.rect = Rectangle(size, size, color=(12,162, 97))
 
         self.x = 0 
         self.y = 0
 
-        self.velocity = 5
+        self.velocity = 3
 
 
-    def update(self):
-        self.animations.setPos(self.x, self.y)
-        self.rect.x = self.x
-        self.rect.y = self.y
-
+    def update(self, dt):
         self.animations.switch(0)
 
         if engine.isKeyPressed('a'):
@@ -47,8 +45,8 @@ class Scene:
 
     
     def draw(self):
-        self.rect.draw()
-        self.animations.draw()
+        self.rect.draw(self.x, self.y)
+        self.animations.draw(self.x, self.y)
 
 
 engine.setCurrentScene(Scene())

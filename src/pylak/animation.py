@@ -9,59 +9,62 @@ For some reason binding animations to texture atlas creates problems
 
 """
 
-import pyglet as pgl
-from PIL import Image
+from .visual import Image
+from .asset import AssetCollection
+import pygame as pg
+from time import time
+
+class Animation:
+
+    def __init__(self, images:list[Image], period, size):
+        self.images = images
+        self.currentIndex = 0
+        self.__last = time()
+        self.period = period
+    
+    def draw(self, x, y, texture=None):
+        if time() - self.__last > self.period:
+            self.currentIndex += 1
+            self.__last = time()
+
+        self.images[self.index].draw(x,y,texture)
+
+    @property
+    def index(self):
+        return self.currentIndex%len(self.images)
 
 
 class Animations:
 
     
     def __addAnimationState__(self, 
-                              fullSpriteSheet, 
-                              size, 
-                              y0, 
-                              y1, 
-                              cols, 
-                              period, 
-                              rowHeight,
-                              flipx=False,
-                              flipy=False
+                                assetCollection:AssetCollection, 
+                                row, 
+                                period,
+                                size,
+                                flipx=False,
+                                flipy=False
                               ):
 
         # chop images into diffrent textures
-        spriteSheet = fullSpriteSheet.crop([0, y0, fullSpriteSheet.width, y1])
-        rawImage = spriteSheet.tobytes()  # tostring is deprecated
-        spriteSheet = pgl.image.ImageData(spriteSheet.width, spriteSheet.height, 'RGBA', rawImage, pitch=-spriteSheet.width * 4)
-
-        # load image into image grid and add animation
-        imageGrid = pgl.image.ImageGrid(spriteSheet, rows=1, columns=cols)
+        images = [assetCollection.get(col, row) for col in range(assetCollection.width)]
         
-        animation = imageGrid.get_animation(period=period)
-        
-        for frame in animation.frames:
-            texture = frame.image.get_texture()
-            frame.image = texture.get_transform(flipx, flipy)
+        for i, frame in enumerate(images):
+            images[i] = Image(pg.transform.flip(frame, flipx, flipy))
+            images[i].size = (size, size)
 
-        sprite = pgl.sprite.Sprite(img=animation)
-
-        sprite.scale = size/rowHeight
-
-        return sprite
+        return Animation(images, period, size)
 
 
-    def __init__(self, texturePath:str, rows:int, cols:int, period=1/15, size=100):
+    def __init__(self, assetCollection:AssetCollection, period=1/15, size=100):
         """
         uses center pos
         """
 
         self.size = size
-
-
-        fullSpriteSheet = Image.open(texturePath)
-        rowHeight = fullSpriteSheet.height / rows
         
-        self.cols = cols
-        self.rows = rows
+        self.cols = assetCollection.width
+        self.rows = assetCollection.height
 
         self.animations = {
             "default":[],
@@ -69,44 +72,37 @@ class Animations:
             "flipy":[]
         }
 
+        self.collection = assetCollection
+
         self._forceNext = None
         self._forceNextActive = False
 
-        for i in range(rows):
+        for i in range(self.rows):
 
             self.animations["default"].append(self.__addAnimationState__(
-                fullSpriteSheet, 
-                size,
-                rowHeight*i, 
-                rowHeight*(i+1), 
-                cols, 
+                assetCollection, 
+                i, 
                 period, 
-                rowHeight
+                self.size,
             ))
 
-        for i in range(rows):
+        for i in range(self.rows):
 
             self.animations["flipx"].append(self.__addAnimationState__(
-                fullSpriteSheet, 
-                size,
-                rowHeight*i, 
-                rowHeight*(i+1), 
-                cols, 
-                period, 
-                rowHeight,
+                assetCollection, 
+                i, 
+                period,
+                self.size,
                 flipx=True
             ))
         
-        for i in range(rows):
+        for i in range(self.rows):
 
             self.animations["flipy"].append(self.__addAnimationState__(
-                fullSpriteSheet, 
-                size,
-                rowHeight*i, 
-                rowHeight*(i+1), 
-                cols, 
-                period, 
-                rowHeight,
+                assetCollection, 
+                i, 
+                period,
+                self.size,
                 flipy=True
             ))
 
@@ -116,6 +112,11 @@ class Animations:
         
         self.x = 0 # center pos
         self.y = 0
+
+
+
+    def open(fpath, width:int, height:int, period=1/15, size=100):
+        return Animations(AssetCollection(fpath, width, height), period, size)
 
 
     def switch(self, index:int, flipx:bool=False, flipy:bool=False):
@@ -141,29 +142,18 @@ class Animations:
         self._forceNext = self._nextAnimationIndex
 
 
-    def setPos(self, x, y):
-        self.x = x
-        self.y = y
+    def draw(self, x, y):
 
-
-    def draw(self, x=None, y=None):
-
-        if x is not None:
-            self.x = x
         
-        if y is not None:
-            self.y = y
-
-
         index, state = self._currentAnimation
 
-        sprite:pgl.sprite.Sprite = self.animations[state][index]
+        sprite:Image = self.animations[state][index]
         sprite.x = x + (state == "flipx") * self.size - self.size/2
         sprite.y = y + (state == "flipy") * self.size - self.size/2
 
         # denne burde kun køre en gang per cyklus men bliver kørt flere gange 
         # hver gang der tegnes og man er på det sidste frame
-        if sprite.frame_index == self.cols - 1 and not self._reachedEndOfCycle:
+        if sprite.index == self.cols - 1 and not self._reachedEndOfCycle:
             
             # hvis der er en ny forced animation som ikke er igang
             if self._forceNext and not self._forceNextActive:
@@ -182,6 +172,6 @@ class Animations:
             else:
                 self._currentAnimation[0] = self._nextAnimationIndex
             
-        self._reachedEndOfCycle = sprite.frame_index == self.cols - 1
+        self._reachedEndOfCycle = sprite.index == self.cols - 1
 
-        sprite.draw()
+        sprite.draw(x, y + self.size)

@@ -2,7 +2,7 @@
 import numpy as np
 import pymunk
 import pymunk.pyglet_util
-import math
+
 
 ###########################################
 # PhysicsObject
@@ -27,8 +27,6 @@ class PhysicsObject:
 
         self.poly = pymunk.Poly.create_box(self.body, (self.width, self.height))
         self.poly.mass = self.mass
-
-        self.poly.friction = friction
         
     
     def addForce(self, x, y):
@@ -41,3 +39,24 @@ class PhysicsObject:
             self.body.angle = 0
 
         self.o.x, self.o.y = self.body.position[0] - self.width/2, self.body.position[1] - self.height/2
+
+
+    @property
+    def velocity(self):
+        return self.body.velocity
+
+    @property
+    def speed(self):
+        return self.body.velocity.length
+
+    
+    def __baseVelocityFunction__(self, func, body, gravity, damping, dt):
+        pymunk.Body.update_velocity(body, gravity, damping, dt)
+        res = func()
+
+        if res:
+            body.velocity = res
+
+
+    def addVelocityFunction(self, func):
+        self.body.velocity_func = lambda body, gravity, damping, dt: self.__baseVelocityFunction__(func, body, gravity, damping, dt)

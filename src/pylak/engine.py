@@ -2,14 +2,18 @@
 # Den her kode base er en simpel version af en game engine.
 # Den er skrevet i Python og bruger Pyglet til at håndtere vinduer og grafik.
 
-import pyglet as pgl
+import pygame as pg
 from typing import DefaultDict
 import numpy as np
 import math
 from time import time
 import pymunk
 import pymunk.pyglet_util
+from .refs import globalEngine
+from .visual import Text
 
+pg.init()
+pg.font.init()
 
 ###########################################
 # Engine
@@ -17,14 +21,17 @@ import pymunk.pyglet_util
 # - Smooth scene transitions
 ###########################################
 class Engine:
-    def __init__(self, width=600, height=600):
+    def __init__(self, width=600, height=600, caption="Spil"):
+        globalEngine[0] = self # use global reference
+        pg.display.set_caption(caption)
+
         self._width = width
         self._height = height
         
-        self.window = pgl.window.Window(self._width, self._height)
+        self.screen = pg.display.set_mode((width, height))
+        self.clock = pg.time.Clock()
         self._currentScene = None
-        self._keyboard = pgl.window.key.KeyStateHandler()
-        self.__keyNames = {v: k for k, v in pgl.window.key._key_names.items()}
+        # self.__keyNames = {v: k for k, v in pgl.window.key._key_names.items()}
 
         self._colliders = []
         self._physicsObjects = []
@@ -32,7 +39,11 @@ class Engine:
 
         self.last = time()
         self.frames = 0
-        self.fps_text = pgl.text.Label(text='Unknown', font_name='Verdana', font_size=8, x=10, y=10, color=(255,255,255,255))
+        
+        self.font = pg.font.SysFont('Times New Roman', 64)
+
+        self.fps_text = Text('Unknown', color=(0,0,0,255))
+        self._physicsSpace = pymunk.Space()
 
 
     # flags
@@ -46,12 +57,8 @@ class Engine:
     # event handling
     def isKeyPressed(self, key:str) -> bool:
 
-        keyval = self.__keyNames.get(key.upper())
-
-        if keyval is None:
-            return False
-
-        return self._keyboard[keyval]
+        keyCode = pg.key.key_code(key)
+        return pg.key.get_pressed()[keyCode]
         
     
     # collider handling
@@ -138,11 +145,11 @@ class Engine:
         # i få situationer er der ikke sat en scene
         if self._currentScene:
             self._currentScene.update(dt)
-
+        
+        self.fps_text.text = str(round(1/dt))
 
     
     def __draw__(self):
-        self.window.clear()
         
         # i få situationer er der ikke sat en scene
         if self._currentScene:
@@ -153,25 +160,33 @@ class Engine:
 
         if self._flags["debug"]:
         
-            # draw fps
-            if time() - self.last >= 1:
-                self.fps_text.text = str(self.frames)
-                self.frames = 0
-                self.last = time()
-            else:
-                self.frames += 1
+            self.fps_text.draw(0,0)
 
-            self.fps_text.draw()
 
+    def __loop__(self):
+        
+        running = True
+        dt = 1
+        while running:
+            # poll for events
+            # pygame.QUIT event means the user clicked X to close your window
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    running = False
+
+            self.screen.fill("white")
+
+            self.__update__(dt/1000)
+            self.__draw__()
+
+            pg.display.flip()
+            dt = self.clock.tick(60)
 
 
     def start(self):
-        
-        self.window.on_draw = self.__draw__
+        """
+        start loopet og start spillet 🕹️🕹️🕹️
 
-        self.window.push_handlers(self._keyboard)
-        pgl.clock.schedule_interval(self.__update__, 1/128)
-        pgl.app.run()
+        """
 
-
-
+        self.__loop__()

@@ -5,11 +5,6 @@ from .player import ControllablePlayer
 from .collider import Collider
 from .physics import PhysicsObject
 from .animation import Animations
-
-# Individual learning games
-
-
-# Other
-# Gør det nemere at impotere for læring
-# NOTE: Can of course create more namespace
-from pyglet.shapes import Rectangle, Circle, Line, Arc, Ellipse, Triangle, Polygon, BezierCurve
+from .tile import Tilemap, Tile
+from .asset import AssetCollection
+from .visual import Text, Image, Rectangle, Circle

@@ -1,4 +1,0 @@
-
-from .maze import MazeGame
-
-
