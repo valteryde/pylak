@@ -1,6 +1,6 @@
 [project]
 name = "pylak"
-version = "0.0.4"
+version = "0.0.5"
 authors = [
   { name="Valter Yde Daugberg", email="valteryde@hotmail.com" },
 ]
@@ -14,7 +14,7 @@ classifiers = [
 ]
 dependencies = [
   "numpy",
-  "pyglet",
+  "pygame",
   "pymunk",
   "pillow"
 ]
