@@ -21,12 +21,15 @@ class ControllablePlayer:
 
         self.rect = Rectangle(w, h, color=(198, 39, 114))
         self.collider = Collider(x, y, w, h, self)
-        self.physics = PhysicsObject(self, self.w, self.h, mass, friction=1)
+        self.physics = PhysicsObject(self, self.w, self.h, mass)
 
         # reference
         self.engine = engine
         
         self.physics.addVelocityFunction(self.__velocityFunction__)
+
+        engine.addPhysicsObject(self.physics)
+        engine.addCollider(self.collider)
 
     
     def __velocityFunction__(self):

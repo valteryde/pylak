@@ -9,7 +9,7 @@ import pymunk.pyglet_util
 ###########################################
 class PhysicsObject:
 
-    def __init__(self, object, width, height, mass=10, isRotatable=False, immovable=False, friction=1):
+    def __init__(self, object, width, height, mass=10, isRotatable=False, immovable=False):
         
         self.o = object
         self.immovable = immovable
@@ -23,6 +23,7 @@ class PhysicsObject:
             self.body = pymunk.Body(body_type=pymunk.Body.KINEMATIC)
         else:
             self.body = pymunk.Body(self.mass)
+    
         self.body.position = self.o.x + self.width/2, self.o.y + self.height/2
 
         self.poly = pymunk.Poly.create_box(self.body, (self.width, self.height))
@@ -38,7 +39,8 @@ class PhysicsObject:
             self.body.angular_velocity = 0
             self.body.angle = 0
 
-        self.o.x, self.o.y = self.body.position[0] - self.width/2, self.body.position[1] - self.height/2
+        if not self.immovable:
+            self.o.x, self.o.y = self.body.position[0] - self.width/2, self.body.position[1] - self.height/2
 
 
     @property
@@ -49,7 +51,16 @@ class PhysicsObject:
     def speed(self):
         return self.body.velocity.length
 
-    
+
+    def getPos(self):
+        return self.body.position
+
+    def setPos(self, pos):
+        self.body.position = pos
+
+    pos = property(getPos, setPos)
+
+
     def __baseVelocityFunction__(self, func, body, gravity, damping, dt):
         pymunk.Body.update_velocity(body, gravity, damping, dt)
         res = func()

@@ -33,7 +33,9 @@ class Text:
         til skærmen
         """
 
+        screen, camera = globalEngine[0].screen, globalEngine[0].camera
         pos = (x, globalEngine[0]._height-y-self.textSize[1])
+        pos = camera.pos(*pos)
 
         if texture:
             self.texture.blit(texture, pos)
@@ -50,10 +52,12 @@ class Image:
 
     def draw(self, x, y, texture=None):
         
+        screen, camera = globalEngine[0].screen, globalEngine[0].camera
         pos = (x, globalEngine[0]._height-y-self.imageSize[1])
+        pos = camera.pos(*pos)
 
         if texture is None:
-            texture = globalEngine[0].screen
+            texture = screen
         
         texture.blit(self.image, pos)
 
@@ -75,20 +79,23 @@ class Image:
 class Rectangle:
 
     def __init__(self, width, height, color=(0,0,0,255)):
-
         self.color = color
         self.width = width
         self.height = height
+
 
     def draw(self, x, y, texture=None):
         """
         
         """
 
+        screen, camera = globalEngine[0].screen, globalEngine[0].camera
+
         pos = (x, globalEngine[0]._height-y-self.height)
+        pos = camera.pos(*pos)
 
         if texture is None:
-            texture = globalEngine[0].screen
+            texture = screen
 
         pg.draw.rect(texture, self.color, [*pos, self.width, self.height])
 
@@ -104,10 +111,12 @@ class Circle:
         """
         
         """
+        screen, camera = globalEngine[0].screen, globalEngine[0].camera
 
-        pos = (x+self.radius, globalEngine[0]._height-y-self.radius) # ?
+        pos = (x+self.radius, globalEngine[0]._height-y-self.radius)
+        pos = camera.pos(*pos)
 
         if texture is None:
-            texture = globalEngine[0].screen
+            texture = screen
 
         pg.draw.circle(texture, self.color, pos, self.radius)

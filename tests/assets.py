@@ -4,24 +4,27 @@ import test
 # måske også lave en map class som holder styr på mappet
 
 import test
-from pylak import Engine, Tilemap, AssetCollection
+from pylak import Engine, Tilemap, AssetCollection, ControllablePlayer
 from pylak.game.adventure import GRASS, DEADGRASS, HOUSES, SHORE, DOCKS
 from random import randint, seed
 import math
 
-seed('abcd')
+seed('abcdef')
 
 engine = Engine()
+# engine.setFlag('debugPhysics', True)
 
 class Scene:
 
     def setup(self):
 
+        engine.camera.setLimit(0, 0, 1200, 1200)
+
         self.mapPos = [0,0]
 
         w, h = 40, 40
         self.map = Tilemap((w, h), (1200, 1200), static=True)  # 🗺️
-        self.housemap = Tilemap((w, h), (1200, 1200))
+        self.housemap = Tilemap((w, h), (1200, 1200)) # 🏠
 
         maps = {
             (i,j):GRASS.get(randint(0,2),randint(0,1)) for i in range(w) for j in range(h)
@@ -34,7 +37,8 @@ class Scene:
 
             # tilføj hus
             if randint(0,1) == 0:
-                house = HOUSES.get(randint(0,3),randint(0,6))
+                house = HOUSES.get(randint(0,2),randint(0,3))
+                
                 if randint(0,1) == 0:
                     self.housemap.create(house, (x+1, i))
                 else:
@@ -72,24 +76,27 @@ class Scene:
         for i,j in maps:
             self.map.create(maps[(i,j)], (i,j))
 
+        engine.addPhysicsObject(self.housemap)
+
+
+        # andet
+        self.player = ControllablePlayer(engine, w=30, h=30)
+
 
     def update(self, dt):
         
-        vel = 5
-        if engine.isKeyPressed('a'):
-            self.mapPos[0] += vel
-        if engine.isKeyPressed('d'):
-            self.mapPos[0] -= vel
-        if engine.isKeyPressed('w'):
-            self.mapPos[1] -= vel
-        if engine.isKeyPressed('s'):
-            self.mapPos[1] += vel
+        self.mapPos[0] = max(min(self.mapPos[0], 0), -1200+engine._width)
+        self.mapPos[1] = max(min(self.mapPos[1], 0), -1200+engine._height)
+
+        self.player.update()
+        engine.camera.follow(self.player.x, self.player.y)
 
 
     def draw(self):
         
         self.map.draw(*self.mapPos)
         self.housemap.draw(*self.mapPos)
+        self.player.draw()
 
 
 engine.setFlag('debug', True)

@@ -8,3 +8,4 @@ from .animation import Animations
 from .tile import Tilemap, Tile
 from .asset import AssetCollection
 from .visual import Text, Image, Rectangle, Circle
+from .camera import Camera

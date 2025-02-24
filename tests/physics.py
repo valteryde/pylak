@@ -5,6 +5,8 @@ from pylak import Engine, Collider, PhysicsObject, Rectangle, Circle, Controllab
 from random import randint
 engine = Engine()
 
+engine.setFlag('debugPhysics', True)
+
 ################################
 # Objekt påvirket af fysik
 ################################

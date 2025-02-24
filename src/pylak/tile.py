@@ -6,9 +6,9 @@ Mål:
 
 """
 
-import pygame as pg
 from .refs import globalEngine
 from .visual import Image
+from .physics import PhysicsObject
 
 class Tilemap:
     """
@@ -62,6 +62,10 @@ class Tilemap:
             for tile in self.tiles:
                 tile.draw(x, y)
 
+    
+    def getPhysicsObjects(self):
+        return [tile.physics for tile in self.tiles]
+
 
 class Tile:
 
@@ -75,10 +79,13 @@ class Tile:
         self.image = Image(image)
         self.image.size = (self.width, self.height)
 
+        self.physics = PhysicsObject(self, width, height, immovable=True)
+
 
     def draw(self, ox, oy, texture=None):
 
         if not texture:
             texture = globalEngine[0].screen
         
-        self.image.draw(self.x+ox,self.y+oy, texture)
+        self.physics.pos = (self.x+ox+self.width/2,self.y+oy+self.width/2)
+        self.image.draw(self.x+ox,self.y+oy+self.height, texture)

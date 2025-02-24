@@ -8,9 +8,12 @@ import numpy as np
 import math
 from time import time
 import pymunk
+import pymunk.pygame_util
 import pymunk.pyglet_util
 from .refs import globalEngine
 from .visual import Text
+from .physics import PhysicsObject
+from .camera import Camera
 
 pg.init()
 pg.font.init()
@@ -31,7 +34,7 @@ class Engine:
         self.screen = pg.display.set_mode((width, height))
         self.clock = pg.time.Clock()
         self._currentScene = None
-        # self.__keyNames = {v: k for k, v in pgl.window.key._key_names.items()}
+        self.camera = Camera(self)
 
         self._colliders = []
         self._physicsObjects = []
@@ -68,6 +71,14 @@ class Engine:
 
     # add physics object
     def addPhysicsObject(self, physicsObject):
+        if type(physicsObject) is not PhysicsObject:
+            
+            for i in physicsObject.getPhysicsObjects():
+                self.addPhysicsObject(i)
+
+            return
+
+
         self._physicsSpace.add(physicsObject.body, physicsObject.poly)
         self._physicsObjects.append(physicsObject)
 
@@ -83,7 +94,8 @@ class Engine:
         self._physicsObjects = []
         
         self._physicsSpace = pymunk.Space()
-        self.__physicsDebugOtions = pymunk.pyglet_util.DrawOptions()
+        self.__physicsDebugOtions = pymunk.pygame_util.DrawOptions(self.screen)
+        pymunk.pygame_util.positive_y_is_up = True
         self.__physicsDebugOtions.flags = pymunk.SpaceDebugDrawOptions.DRAW_SHAPES
 
         scene.setup()
@@ -179,14 +191,13 @@ class Engine:
             self.__update__(dt/1000)
             self.__draw__()
 
-            pg.display.flip()
+            pg.display.update()
             dt = self.clock.tick(60)
 
 
     def start(self):
         """
-        start loopet og start spillet 🕹️🕹️🕹️
-
+        start loopet og dermed start spillet 🕹️🕹️🕹️
         """
 
         self.__loop__()
