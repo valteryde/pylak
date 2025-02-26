@@ -20,7 +20,7 @@ class ControllablePlayer:
         self.drag = self.force/maxSpeed
 
         self.rect = Rectangle(w, h, color=(198, 39, 114))
-        self.collider = Collider(x, y, w, h, self)
+        self.collider = Collider(x, y, w, h)
         self.physics = PhysicsObject(self, self.w, self.h, mass)
 
         # reference
@@ -64,3 +64,4 @@ class ControllablePlayer:
             drag = -self.drag * self.physics.velocity
             self.physics.addForce(*drag)
 
+        self.collider.x, self.collider.y = self.x, self.y

@@ -1,26 +1,21 @@
 
-import pyglet as pgl
+from .visual import Rectangle
 
 ###########################################
 # Collider 
 ###########################################
 class Collider:
     
-    def __init__(self, x, y, width, height, referenceObject):
+    def __init__(self, x, y, width, height):
         self.x = x
         self.y = y
         self.width = width
         self.height = height
-        self.rect = pgl.shapes.Rectangle(x, y, width, height, color=(255, 0, 0))
-
-        self.referenceObject = referenceObject
+        self.rect = Rectangle(width, height, color=(0, 135, 0))
 
 
     def draw(self):
-        self.rect.x = self.x
-        self.rect.y = self.y
-
-        self.rect.draw()
+        self.rect.draw(self.x, self.y)
 
 
     def isColliding(self, other):
@@ -30,8 +25,10 @@ class Collider:
                 self.y > other.y + other.height)
 
         if isColliding:
-            self.rect.color = (255, 0, 0)
+            self.rect.color = (91, 124, 221)
         else:
-            self.rect.color = (0, 0, 255)
+            self.rect.color = (12, 172, 89)
+        
+        other.rect.color = self.rect.color
 
         return isColliding

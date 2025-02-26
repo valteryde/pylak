@@ -15,13 +15,14 @@ class Tilemap:
     Tilemap består af flere forskellige tiles
     """
 
-    def __init__(self, tiles:tuple, size:tuple, static:bool=False):
+    def __init__(self, tiles:tuple, size:tuple, static:bool=False, gap:int=0):
         self.width = tiles[0]
         self.height = tiles[1]
         self.tiles = []
         self.x = 0
         self.y = 0
         self.static = static
+        self.gap = gap
 
         self.size = size
 
@@ -39,10 +40,14 @@ class Tilemap:
     
     def create(self, image, pos):
         x, y = (
-            pos[0]*self.tileSizes[0], 
-            pos[1]*self.tileSizes[1]
+            pos[0]*self.tileSizes[0] + self.gap, 
+            pos[1]*self.tileSizes[1] + self.gap
         )
-        tile = Tile(image, x, y, *self.tileSizes)
+        w, h = (
+            self.tileSizes[0] - self.gap*2, 
+            self.tileSizes[1] - self.gap*2
+        )
+        tile = Tile(image, x, y, w, h)
 
         self.tiles.append(tile)
 

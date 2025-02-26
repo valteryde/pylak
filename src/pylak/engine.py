@@ -168,7 +168,10 @@ class Engine:
             self._currentScene.draw()
 
         if self._flags["debugPhysics"]:
-            self._physicsSpace.debug_draw(self.__physicsDebugOtions)
+            
+            for i in self._physicsObjects:
+                i.draw()
+            # self._physicsSpace.debug_draw(self.__physicsDebugOtions)
 
         if self._flags["debug"]:
         

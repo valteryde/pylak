@@ -1,8 +1,7 @@
 
-import numpy as np
 import pymunk
 import pymunk.pyglet_util
-
+from .visual import Rectangle
 
 ###########################################
 # PhysicsObject
@@ -28,6 +27,8 @@ class PhysicsObject:
 
         self.poly = pymunk.Poly.create_box(self.body, (self.width, self.height))
         self.poly.mass = self.mass
+
+        self.rect = Rectangle(self.width, self.height, color=(0, 135, 0))
         
     
     def addForce(self, x, y):
@@ -71,3 +72,7 @@ class PhysicsObject:
 
     def addVelocityFunction(self, func):
         self.body.velocity_func = lambda body, gravity, damping, dt: self.__baseVelocityFunction__(func, body, gravity, damping, dt)
+
+    
+    def draw(self):
+        self.rect.draw(self.o.x, self.o.y)

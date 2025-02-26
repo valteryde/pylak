@@ -16,7 +16,7 @@ from time import time
 
 class Animation:
 
-    def __init__(self, images:list[Image], period, size):
+    def __init__(self, images:list[Image], period):
         self.images = images
         self.currentIndex = 0
         self.__last = time()
@@ -53,15 +53,16 @@ class Animations:
             images[i] = Image(pg.transform.flip(frame, flipx, flipy))
             images[i].size = (size, size)
 
-        return Animation(images, period, size)
+        return Animation(images, period)
 
 
-    def __init__(self, assetCollection:AssetCollection, period=1/15, size=100):
+    def __init__(self, assetCollection:AssetCollection, period=1/15, size=100, switchInstant=False):
         """
         uses center pos
         """
 
         self.size = size
+        self.switchInstant = switchInstant
         
         self.cols = assetCollection.width
         self.rows = assetCollection.height
@@ -153,7 +154,7 @@ class Animations:
 
         # denne burde kun køre en gang per cyklus men bliver kørt flere gange 
         # hver gang der tegnes og man er på det sidste frame
-        if sprite.index == self.cols - 1 and not self._reachedEndOfCycle:
+        if (sprite.index == self.cols - 1 or self.switchInstant) and not self._reachedEndOfCycle:
             
             # hvis der er en ny forced animation som ikke er igang
             if self._forceNext and not self._forceNextActive:

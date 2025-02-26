@@ -12,7 +12,7 @@ import math
 seed('abcdef')
 
 engine = Engine()
-# engine.setFlag('debugPhysics', True)
+engine.setFlag('debugPhysics', True)
 
 class Scene:
 
@@ -89,7 +89,7 @@ class Scene:
         self.mapPos[1] = max(min(self.mapPos[1], 0), -1200+engine._height)
 
         self.player.update()
-        engine.camera.follow(self.player.x, self.player.y)
+        engine.camera.center(self.player.x, self.player.y)
 
 
     def draw(self):

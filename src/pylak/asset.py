@@ -1,6 +1,7 @@
 
 from PIL import Image
 import pygame as pg
+from random import randint
 
 
 class AssetCollection:
@@ -30,3 +31,9 @@ class AssetCollection:
 
         return spriteSheet
 
+    
+    def random(self):
+        return self.get(randint(0, self.width - 1), randint(0, self.height - 1))
+
+    def getAll(self):
+        return [self.get(i, j) for i in range(self.width) for j in range(self.height)]
